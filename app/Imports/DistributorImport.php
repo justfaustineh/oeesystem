@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Maatwebsite\Excel\Failures\Failure;
+use Maatwebsite\Excel\Validators\Failure;
 use Illuminate\Support\Collection;
 
 class DistributorImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
@@ -56,8 +56,8 @@ class DistributorImport implements ToModel, WithHeadingRow, WithValidation, Skip
                 'type' => strtolower(trim($row['type'] ?? 'distributor')),
                 'status' => strtolower(trim($row['status'] ?? 'active')),
                 'is_featured' => $this->parseBoolean($row['is_featured'] ?? false),
-                'contract_start' => $this->parseDate($row['contract_start'] ?? null),
-                'contract_end' => $this->parseDate($row['contract_end'] ?? null),
+                'contract_start' => $this->parseDate($row['contract_start_yyyy_mm_dd'] ?? null),
+                'contract_end' => $this->parseDate($row['contract_end_yyyy_mm_dd'] ?? null),
                 'notes' => trim($row['notes'] ?? null),
             ];
 
@@ -76,8 +76,8 @@ class DistributorImport implements ToModel, WithHeadingRow, WithValidation, Skip
             $distributor = Distributor::create($data);
 
             // Attach product categories if provided
-            if (!empty($row['product_categories'])) {
-                $this->attachCategories($distributor, $row['product_categories']);
+            if (!empty($row['product_categories_comma_separated'])) {
+                $this->attachCategories($distributor, $row['product_categories_comma_separated']);
             }
 
             return $distributor;
