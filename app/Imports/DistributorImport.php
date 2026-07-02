@@ -117,11 +117,17 @@ class DistributorImport implements ToModel, WithHeadingRow, WithValidation, Skip
     public function onFailure(Failure ...$failures)
     {
         foreach ($failures as $failure) {
+            $attributes = $failure->attribute();
+            $attribute_str = is_array($attributes) ? implode(', ', $attributes) : (string)$attributes;
+            
+            $errors_list = $failure->errors();
+            $errors_str = is_array($errors_list) ? implode(', ', $errors_list) : (string)$errors_list;
+            
             $this->errors[] = [
                 'row' => $failure->row(),
-                'column' => implode(', ', $failure->attribute()),
+                'column' => $attribute_str,
                 'value' => 'See validation errors',
-                'message' => implode(', ', $failure->errors())
+                'message' => $errors_str
             ];
         }
     }
@@ -209,7 +215,7 @@ class DistributorImport implements ToModel, WithHeadingRow, WithValidation, Skip
             return $value;
         }
 
-        $value = strtolower(trim($value));
+        $value = strtolower(trim((string)$value));
         return in_array($value, ['yes', 'true', '1', 'y', 'on']);
     }
 
@@ -222,7 +228,7 @@ class DistributorImport implements ToModel, WithHeadingRow, WithValidation, Skip
             return null;
         }
 
-        $value = trim($value);
+        $value = trim((string)$value);
 
         try {
             // Try to parse as timestamp
@@ -260,7 +266,7 @@ class DistributorImport implements ToModel, WithHeadingRow, WithValidation, Skip
             return null;
         }
 
-        $value = trim($value);
+        $value = trim((string)$value);
         $float = filter_var($value, FILTER_VALIDATE_FLOAT);
 
         if ($float !== false) {
